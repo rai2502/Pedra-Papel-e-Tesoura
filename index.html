@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedra, Papel e Tesoura</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Pedra, Papel e Tesoura</h1>
+
+        <!-- Tela de Entrada -->
+        <div id="entrada">
+            <input type="text" id="nome" placeholder="Seu Nome">
+            <div class="buttons">
+                <button id="criarJogo">Criar Novo Jogo</button>
+                <p>ou</p>
+                <input type="text" id="gameId" placeholder="ID do Jogo para Entrar">
+                <button id="entrarJogo">Entrar em Jogo</button>
+            </div>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div id="jogo" class="hidden">
+            <p id="status">Aguardando oponente entrar...</p>
+            <p>Game ID: <span id="gameIDDisplay"></span></p>
+            <p>Você é: <span id="jogador"></span></p>
+
+            <div class="choices">
+                <button class="choice" id="pedra">Pedra</button>
+                <button class="choice" id="papel">Papel</button>
+                <button class="choice" id="tesoura">Tesoura</button>
+            </div>
+
+            <h3>Histórico de Partidas</h3>
+            <ul id="historico">
+                <!-- Histórico de partidas vai aqui -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let jogador = 1;
+        let gameId = null;
+        let escolhas = [];
+        let historico = [];
+
+        // Função para atualizar o histórico
+        function atualizarHistorico() {
+            const historicoElement = document.getElementById('historico');
+            historicoElement.innerHTML = '';
+            historico.forEach((partida, index) => {
+                const li = document.createElement('li');
+                li.textContent = `Partida ${index + 1}: ${partida.vencedor} venceu!`;
+                historicoElement.appendChild(li);
+            });
+        }
+
+        // Criar novo jogo
+        document.getElementById('criarJogo').addEventListener('click', () => {
+            const nome = document.getElementById('nome').value;
+            if (!nome) return alert('Por favor, insira seu nome!');
+            gameId = Math.floor(Math.random() * 1000); // ID aleatório para o jogo
+            document.getElementById('entrada').classList.add('hidden');
+            document.getElementById('jogo').classList.remove('hidden');
+            document.getElementById('gameIDDisplay').innerText = gameId;
+            document.getElementById('jogador').innerText = 'Jogador 1';
+        });
+
+        // Entrar em um jogo existente
+        document.getElementById('entrarJogo').addEventListener('click', () => {
+            gameId = document.getElementById('gameId').value;
+            const nome = document.getElementById('nome').value;
+            if (!nome || !gameId) return alert('Por favor, insira um ID de jogo válido!');
+            document.getElementById('entrada').classList.add('hidden');
+            document.getElementById('jogo').classList.remove('hidden');
+            document.getElementById('gameIDDisplay').innerText = gameId;
+            document.getElementById('jogador').innerText = 'Jogador 2';
+        });
+
+        // Função para determinar o vencedor
+        function determinarVencedor(escolha1, escolha2) {
+            if (escolha1 === escolha2) return 'Empate';
+            if ((escolha1 === 'Pedra' && escolha2 === 'Tesoura') ||
+                (escolha1 === 'Papel' && escolha2 === 'Pedra') ||
+                (escolha1 === 'Tesoura' && escolha2 === 'Papel')) {
+                return 'Jogador 1';
+            }
+            return 'Jogador 2';
+        }
+
+        // Quando o jogador faz uma escolha
+        document.querySelectorAll('.choice').forEach(button => {
+            button.addEventListener('click', () => {
+                const escolha = button.innerText;
+                escolhas.push({ jogador, escolha });
+                if (escolhas.length === 2) {
+                    // Jogo completo, determinar vencedor
+                    const vencedor = determinarVencedor(escolhas[0].escolha, escolhas[1].escolha);
+                    historico.push({ vencedor });
+                    atualizarHistorico();
+                    alert(`Escolha do Jogador 1: ${escolhas[0].escolha}\nEscolha do Jogador 2: ${escolhas[1].escolha}\nVencedor: ${vencedor}`);
+                    // Limpar escolhas
+                    escolhas = [];
+                }
+            });
+        });
+    </script>
+</body>
+</html>
